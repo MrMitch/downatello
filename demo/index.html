@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>downatello - Demo</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <div id="html">
+            <p>
+                <strong>downatello</strong> is a lybrary designed to provide a bridge between
+                <em>HTML</em> markup and
+                <em>MARDOWN</em> markup.
+            </p>
+
+            <p>It allows to convert <em>HTML</em> markup to <em>MARDOWN</em> markup.</p>
+
+            <ul>
+                <li>this</li>
+                <li>is</li>
+                <li>a</li>
+                <li>list</li>
+            </ul>
+
+            <ol>
+                <li>this</li>
+                <li>is</li>
+                <li>another</li>
+                <li>list</li>
+            </ol>
+        </div>
+        <textarea id="toMarkdown" cols="100" rows="20"></textarea>
+
+        <pre id="markdown">
+    **downatello** can also convert _MARKDOWN_ markup to _HTML_ markup.
+        </pre>
+
+        <textarea id="toHtml" cols="30" rows="10"></textarea>
+
+        <script type="text/javascript" src="../downatello.js"></script>
+        <script type="text/javascript">
+
+            // HTML to MARKDOWN
+            var html = document.getElementById('html').innerHTML;
+            document.getElementById('toMarkdown').value = html;
+
+        </script>
+    
+    </body>
+</html>
