@@ -18,6 +18,30 @@ and use the ```downatello``` variable in your javascript code.
 
 ## ```downatello.toMarkdown()```
 
+Use ```downatello.toMarkdown()``` to convert HTML markup to MARKDOWN markup.
 
+Example: 
+
+```html
+<script type="text/javascript">
+var markdown = downatello.toMardown('<p>This text will be translated to <strong>MARDOWN</strong>.</p>');
+console.log(mardown);
+
+// This text will be translated to **MARKDOWN**.
+</script>
+```
 
 ## ```downatello.toHtml()```
+
+Use ```downatello.toHtml()``` to convert MARKDOWN markup to HTML markup.
+
+Example
+
+```html
+<script type="text/javascript">
+var html = downatello.toHtml('This text will be translated to **MARDOWN**.');
+console.log(mardown);
+
+// <p>This text will be translated to <strong>MARKDOWN</strong>.</p>
+</script>
+```
