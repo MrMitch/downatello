@@ -8,12 +8,12 @@
 
         <div id="html">
             <p>
-                <strong>downatello</strong> is a lybrary designed to provide a bridge between
+                <strong>downatello</strong> is a library designed to provide a bridge between
                 <em>HTML</em> markup and
-                <em>MARDOWN</em> markup.
+                <em>MARKDOWN</em> markup.
             </p>
 
-            <p>It allows to convert <em>HTML</em> markup to <em>MARDOWN</em> markup.</p>
+            <p>It allows to convert <em>HTML</em> markup to <em>MARKDOWN</em> markup.</p>
 
             <ul>
                 <li>this</li>
@@ -42,9 +42,9 @@
 
             // HTML to MARKDOWN
             var html = document.getElementById('html').innerHTML;
-            document.getElementById('toMarkdown').value = html;
+            document.getElementById('toMarkdown').value = downatello.toMarkdown(html);
 
         </script>
-    
+
     </body>
 </html>
