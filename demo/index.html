@@ -13,6 +13,10 @@
                 <em>MARKDOWN</em> markup.
             </p>
 
+            <p>This is a simple paragraph.</p>
+
+            This is a textnode (i.e. without a &lt;p&gt; tag around).
+
             <p>It allows to convert <em>HTML</em> markup to <em>MARKDOWN</em> markup.</p>
 
             <ul>
@@ -41,7 +45,7 @@
         <script type="text/javascript">
 
             // HTML to MARKDOWN
-            var html = document.getElementById('html').innerHTML;
+            var html = document.getElementById('html')//.innerHTML;
             document.getElementById('toMarkdown').value = downatello.toMarkdown(html);
 
         </script>
