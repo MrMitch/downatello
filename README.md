@@ -23,9 +23,13 @@ Use ```downatello.toMarkdown()``` to convert HTML markup to MARKDOWN markup.
 Example: 
 
 ```html
+<p id="html">This text will be translated to <strong>MARKDOWN</strong>.</p>
+
 <script type="text/javascript">
-var markdown = downatello.toMardown('<p>This text will be translated to <strong>MARDOWN</strong>.</p>');
-console.log(mardown);
+var html = document.getElementById('html');
+var markdown = downatello.toMarkdown(html);
+
+console.log(markdown);
 
 // This text will be translated to **MARKDOWN**.
 </script>
@@ -39,9 +43,9 @@ Example
 
 ```html
 <script type="text/javascript">
-var html = downatello.toHtml('This text will be translated to **MARDOWN**.');
-console.log(mardown);
+var html = downatello.toHtml('This text has been translated from **MARKDOWN**.');
+console.log(html);
 
-// <p>This text will be translated to <strong>MARKDOWN</strong>.</p>
+// <p>This text will has been translated from <strong>MARKDOWN</strong>.</p>
 </script>
 ```
