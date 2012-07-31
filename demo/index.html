@@ -7,45 +7,59 @@
     <body>
 
         <div id="html">
+
+            <img src="img/downatello.png" alt="downatello!"/>
+
+            <h1>what's downatello ?</h1>
+
             <p>
                 <strong>downatello</strong> is a library designed to provide a bridge between
-                <em>HTML</em> markup and
-                <em>MARKDOWN</em> markup.
+                <a href="http://fr.wikipedia.org/wiki/Hypertext_Markup_Language">HTML</a> markup and
+                <a href="http://daringfireball.net/projects/markdown/">MARKDOWN</a> markup.
             </p>
+
+            <p>It allows to convert <em>HTML</em> markup to <em>MARKDOWN</em> markup.</p>
+            <p>But enough said, see the examples to witness its true power.</p>
+
+            <hr />
+
+            <h1>Examples: </h1>
 
             <p>This is a simple paragraph.</p>
 
             This is a textnode (i.e. without a &lt;p&gt; tag around).
 
-            <p>It allows to convert <em>HTML</em> markup to <em>MARKDOWN</em> markup.</p>
+            <p>This paragraphe is stylized with <span style="font-weight: bold">span</span>
+                <span style="font-style: italic;">elements</span>
+            </p>
 
+            <h2>Good people</h2>
             <ul>
-                <li>this</li>
-                <li>is</li>
-                <li>a</li>
-                <li>list</li>
+                <li>teenage</li>
+                <li>mutant</li>
+                <li>ninja</li>
+                <li>turtles</li>
             </ul>
 
             <ol>
-                <li>this</li>
-                <li>is</li>
-                <li>another</li>
-                <li>list</li>
+                <li>Leonardo</li>
+                <li>Michelangelo</li>
+                <li><b>Donatello</b></li>
+                <li>Raphael</li>
             </ol>
+
+            <h2>Bad people</h2>
+            <ol></ol>
+
         </div>
-        <textarea id="toMarkdown" cols="100" rows="20"></textarea>
 
-        <pre id="markdown">
-    **downatello** can also convert _MARKDOWN_ markup to _HTML_ markup.
-        </pre>
-
-        <textarea id="toHtml" cols="30" rows="10"></textarea>
+        <textarea id="toMarkdown" cols="150" rows="20"></textarea>
 
         <script type="text/javascript" src="../downatello.js"></script>
         <script type="text/javascript">
 
             // HTML to MARKDOWN
-            var html = document.getElementById('html')//.innerHTML;
+            var html = document.getElementById('html');
             document.getElementById('toMarkdown').value = downatello.toMarkdown(html);
 
         </script>
