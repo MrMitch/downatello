@@ -4,16 +4,8 @@
 
 (function(window, undefined){
 
-    var _downatello = {};
-
-    var debug = true;
-
-    if(!debug)
-    {
-        console.log = console.debug = console.warn = console.error = console.group = console.groupEnd = function(){return;}
-    }
-
-    var core = {
+    // MARKDOWN ENGINE
+    var MarkdownEngine = {
         element: Node.ELEMENT_NODE,
         text: Node.TEXT_NODE,
 
@@ -24,7 +16,7 @@
         },
 
         isBlock: function(elem) {
-            if(elem == null)
+            if(elem == null || elem.nodeType == MarkdownEngine.text)
             {
                 return false;
             }
@@ -86,7 +78,7 @@
          */
         escapeSpecialChars: function(string) {
             return string.replace(/(\\|`|\*|_|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-                .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&?!amp;/g, '&amp;');
         },
 
         markdownify: function(html) {
@@ -105,10 +97,7 @@
                     empty = false;
                     elem = html.childNodes[i];
 
-                    console.group( (elem.tagName ? elem.tagName.toLowerCase() : 'textNode') );
-                    console.debug(elem);
-
-                    if(elem.nodeType == core.text)
+                    if(elem.nodeType == MarkdownEngine.text)
                     {
                         if(/\S+/g.test(elem.textContent))
                         {
@@ -120,7 +109,7 @@
                             var next = elem.nextSibling;
 
                             // if this 'space only' text node is not the first or last element in its parent
-                            if(previous && next && core.isInline(previous) && core.isInline(next))
+                            if(previous && next && MarkdownEngine.isInline(previous) && MarkdownEngine.isInline(next))
                             {
                                 markdown += ' ';
                             }
@@ -131,7 +120,7 @@
                         }
                     }
 
-                    else if(elem.nodeType == core.element)
+                    else if(elem.nodeType == MarkdownEngine.element)
                     {
                         switch (elem.tagName.toLowerCase())
                         {
@@ -164,22 +153,22 @@
                                 break;
 
                             case 'h1':
-                                markdown += '# ' + this.markdownify(elem);
+                                markdown += '#' + this.markdownify(elem);
                                 break;
                             case 'h2':
-                                markdown += '## ' + this.markdownify(elem);
+                                markdown += '##' + this.markdownify(elem);
                                 break;
                             case 'h3':
-                                markdown += '### ' + this.markdownify(elem);
+                                markdown += '###' + this.markdownify(elem);
                                 break;
                             case 'h4':
-                                markdown += '#### ' + this.markdownify(elem);
+                                markdown += '####' + this.markdownify(elem);
                                 break;
                             case 'h5':
-                                markdown += '##### ' + this.markdownify(elem);
+                                markdown += '#####' + this.markdownify(elem);
                                 break;
                             case 'h6':
-                                markdown += '###### ' + this.markdownify(elem);
+                                markdown += '######' + this.markdownify(elem);
                                 break;
 
                             // inlines
@@ -233,46 +222,126 @@
                     }
 
                     parent = elem.parentNode || elem.parentElement;
-                    if(parent == core.source && !empty)
+                    if(parent == MarkdownEngine.source && !empty)
                     {
                         markdown += '\n\n';
                     }
-
-                    if(empty)
-                    {
-                        console.warn('empty');
-                        console.log(' ');
-                    }
-
-                    console.groupEnd();
                 }
             }
 
             return markdown;
-        },
-
-        htmlify: function(markdown) {
-
         }
     };
 
-    /**
-     * Convert HTML to MARKDOWN
-     * @param {Element} html
-     */
-    _downatello.toMarkdown = function(html) {
+    var HtmlEngine = {
 
-        core.source = html;
-        return core.markdownify(html).replace(/\s+$/,'');
+        htmlize: function(string){
+            var blocks = string.split('\n\n');
+            var block;
 
+            for(var i in blocks)
+            {
+                block = blocks[i];
+
+                // replace inline elements
+                block = block.replace(/(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g, '<strong>$2</strong>');
+                block = block.replace(/(\*|_)(?=\S)([^\r]*?\S)\1/g, '<em>$2</em>');
+
+                //image
+                block = block.replace(/(!\[(.*?)\]\s?\([ \t]*()<?(\S+?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,
+                    function(){
+                        return '<img src="' + arguments[4] + '" alt="'
+                            + (arguments[2] ? arguments[2] : arguments[4])+ '"'
+                            + (arguments[7] ? ' title="' + arguments[7] + '"' : '') + '/>';
+                    }
+                );
+
+                block = block.replace(/(\[(.*?)\]\s?\([ \t]*()<?(\S+?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,
+                    function(){
+                        return '<a href="' + arguments[4] + '"'
+                            + (arguments[7] ? ' title="' + arguments[7] + '"' : '')
+                            +'>' + arguments[2] + '</a>';
+                    }
+                );
+
+                if(/^((-|\*|_) ?)+$/.test(block))
+                {
+                    block = '<hr />';
+                }
+
+                if(/^#{1,6}(.*)/.test(block))
+                {
+                    block = this.heading(block);
+                }
+
+                if(/^((\d\.|[\*|\+|-]) (.*)(\n|$))+/gm.test(block))
+                {
+                    block = this.list(block, (block.search(/\d\./) == 0 ? 'ol' : 'ul'));
+                }
+
+                if(/^(<(strong|em|img|a)|[^<])/g.test(block))
+                {
+                    block = '<p>' + block + '</p>'
+                }
+
+                blocks[i] = this.unescapeSpecialChars(block);
+            }
+
+            return blocks.join('');
+        },
+
+        unescapeSpecialChars: function(string){
+            return string.replace(/\\(\\|`|\*|_|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '$1');
+        },
+
+        list: function(string, tag){
+            var list = '';
+            var items = string.split('\n');
+
+            for(var i in items)
+            {
+                list += '<li>' + items[i].substring(2) + '</li>';
+            }
+
+            return '<' + tag + '>' + list + '</' + tag +'>';
+
+        },
+
+        heading: function(string) {
+            var sharpes = '######';
+            for(var i=5;i>=0;i--)
+            {
+                if(string.indexOf(sharpes) === 0)
+                {
+                    return '<h' + (i+1) + '>' + string.substring(i+1) + '</h' + (i+1) + '>';
+                }
+
+                sharpes = sharpes.substring(0, i);
+            }
+        }
     };
 
-
-
-
-
-
     // expose the downatello variable to the global scope
-    window.downatello = _downatello;
+    window.downatello = {
+
+        /**
+         * Convert HTML to MARKDOWN
+         * @param {Element} html
+         */
+        toMarkdown: function(html) {
+            MarkdownEngine.source = html;
+            return MarkdownEngine.markdownify(html).replace(/\s+$/,'');
+
+        },
+
+        /**
+         * Convert MARKDOWN to HTML
+         * @param {String} markdown
+         * @return {String}
+         */
+        toHtml: function(markdown) {
+            return HtmlEngine.htmlize(markdown);
+        }
+    };
 
 }(window));
