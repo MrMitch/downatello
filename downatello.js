@@ -4,14 +4,24 @@
 
 (function(window, undefined){
 
-    var _downatello = {
+    var _downatello = {};
+
+    var core = {
+        element: Node.ELEMENT_NODE,
+        text: Node.TEXT_NODE,
 
         tags: {
-            blocks: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'pre', 'blockquote', 'ol', 'ul', 'li'],
-            inlines: ['a', 'em', 'i', 'strong', 'b', 'u', 'code', 'img']
+            blocks: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'ol', 'ul', 'li', 'header', 'nav',
+                'aside', 'article', 'footer', 'br', 'hr'],
+            inlines: ['a', 'em', 'i', 'strong', 'b', 'u', 'code', 'img', 'span']
         },
 
         isBlock: function(elem) {
+            if(elem == null)
+            {
+                return false;
+            }
+
             var tag = elem.tagName.toLowerCase();
             for(var i in this.tags.blocks) {
                 if(tag == this.tags.blocks[i])
@@ -23,6 +33,11 @@
         },
 
         isInline: function(elem) {
+            if(elem == null)
+            {
+                return false;
+            }
+
             var tag = elem.tagName.toLowerCase();
             for(var i in this.tags.inlines) {
                 if(tag == this.tags.inlines[i])
@@ -31,12 +46,9 @@
                 }
             }
             return false;
-        }
-    };
+        },
 
-    var core = {
         unindent: function(string) {
-            //return string.replace(/^((\n|\s)+(\n|\s)*)(.*)((\n|\s)+(\n|\s))*/g, '$4');
             return string.replace(/^\s{2,}/, '').replace(/^\n/, '').replace(/\s+$/, ' ');
         },
 
@@ -63,13 +75,7 @@
          */
         escapeSpecialChars: function(string) {
             return string.replace(/(\\|`|\*|_|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-        },
-
-        emphasis: function(string){
-            return '_' + this.escapeSpecialChars(string) + '_';
-        },
-        bold: function(string) {
-            return '**' + this.escapeSpecialChars(string) + '**';
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;');
         },
 
         markdownify: function(html) {
@@ -80,7 +86,7 @@
             var parent;
 
 
-            if(html.childNodes.length > 0)
+            if(html.childNodes && html.childNodes.length > 0)
             {
                 for(var i = 0; i< html.childNodes.length; i++)
                 {
@@ -88,7 +94,10 @@
                     empty = false;
                     elem = html.childNodes[i];
 
-                    if(elem.nodeType == Node.TEXT_NODE)
+                    console.group( (elem.tagName ? elem.tagName.toLowerCase() : 'textNode') );
+                    console.debug(elem);
+
+                    if(elem.nodeType == core.text)
                     {
                         if(/\S+/g.test(elem.textContent))
                         {
@@ -96,11 +105,22 @@
                         }
                         else
                         {
-                            empty = true;
+                            var previous = elem.previousSibling;
+                            var next = elem.nextSibling;
+
+                            // if this 'space only' text node is not the first or last element in its parent
+                            if(previous && next && core.isInline(previous) && core.isInline(next))
+                            {
+                                markdown += ' ';
+                            }
+                            else
+                            {
+                                empty = true;
+                            }
                         }
                     }
 
-                    else if(elem.nodeType == Node.ELEMENT_NODE)
+                    else if(elem.nodeType == core.element)
                     {
                         switch (elem.tagName.toLowerCase())
                         {
@@ -133,47 +153,63 @@
                                 break;
 
                             case 'h1':
-                                markdown += '# ' + this.escapeSpecialChars(elem.textContent);
+                                markdown += '# ' + this.markdownify(elem);
                                 break;
                             case 'h2':
-                                markdown += '## ' + this.escapeSpecialChars(elem.textContent);
+                                markdown += '## ' + this.markdownify(elem);
                                 break;
                             case 'h3':
-                                markdown += '### ' + this.escapeSpecialChars(elem.textContent);
+                                markdown += '### ' + this.markdownify(elem);
                                 break;
                             case 'h4':
-                                markdown += '#### ' + this.escapeSpecialChars(elem.textContent);
+                                markdown += '#### ' + this.markdownify(elem);
                                 break;
                             case 'h5':
-                                markdown += '##### ' + this.escapeSpecialChars(elem.textContent);
+                                markdown += '##### ' + this.markdownify(elem);
                                 break;
                             case 'h6':
-                                markdown += '###### ' + this.escapeSpecialChars(elem.textContent);
+                                markdown += '###### ' + this.markdownify(elem);
                                 break;
 
                             // inlines
                             case 'img':
-                                markdown += '![' + this.escapeSpecialChars(elem.alt) + ']('
+                                markdown += '![' + (elem.alt || ' ') + ']('
                                     + this.escapeSpecialChars(elem.src)
-                                    + (elem.title ? '"' + this.escapeSpecialChars(elem.title) + '"' : '') +  ')';
+                                    + (elem.title ? ' "' + this.escapeQuotes(elem.title) + '"' : '') +  ')';
                                 break;
                             case 'a':
-                                markdown += '[' + this.escapeSpecialChars(elem.href) + ']('
-                                    + this.escapeSpecialChars(elem.textContent) + ')';
+                                markdown += '[' + this.markdownify(elem) + ']('
+                                    + this.escapeSpecialChars(elem.href) + ')';
                                 break;
 
                             case 'b':
                             case 'strong':
-                                markdown += this.bold(elem.textContent);
+                                markdown += '**' + this.markdownify(elem) + '**';
                                 break;
 
                             case 'em':
                             case 'i':
-                                markdown += this.emphasis(elem.textContent);
+                                markdown += '_' + this.markdownify(elem) + '_';
                                 break;
+
+                            case 'u':
+                                markdown += this.markdownify(elem);
+                                break;
+
                             case 'span':
-                                //console.debug(elem);
-                                markdown += ''; // handle style attribute
+                                var text = this.markdownify(elem);
+
+                                if(elem.style && (elem.style.fontWeight == 'bold' || elem.style.fontWeight == 'bolder'))
+                                {
+                                    text = '**' + text + '**';
+                                }
+
+                                if (elem.style && elem.style.fontStyle == 'italic')
+                                {
+                                    text = '_' + text + '_';
+                                }
+
+                                markdown += text;
                                 break;
                             default:
                                 error = true;
@@ -190,6 +226,14 @@
                     {
                         markdown += '\n\n';
                     }
+
+                    if(empty)
+                    {
+                        console.warn('empty');
+                        console.log(' ');
+                    }
+
+                    console.groupEnd();
                 }
             }
 
