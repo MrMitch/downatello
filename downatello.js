@@ -6,6 +6,13 @@
 
     var _downatello = {};
 
+    var debug = true;
+
+    if(!debug)
+    {
+        console.log = console.debug = console.warn = console.error = console.group = console.groupEnd = function(){return;}
+    }
+
     var core = {
         element: Node.ELEMENT_NODE,
         text: Node.TEXT_NODE,
@@ -56,6 +63,10 @@
             return string.replace(/"/, '\\"');
         },
 
+        concatSpaces: function(string) {
+            return string.replace(/\s{2,}/, ' ');
+        },
+
         /**
          * Escape Markdown special chars :
          *
@@ -101,7 +112,7 @@
                     {
                         if(/\S+/g.test(elem.textContent))
                         {
-                            markdown += this.unindent(this.escapeSpecialChars(elem.textContent));
+                            markdown += this.concatSpaces(this.unindent(this.escapeSpecialChars(elem.textContent)));
                         }
                         else
                         {
