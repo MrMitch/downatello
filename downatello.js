@@ -265,7 +265,7 @@
                     function(){
                         return '<a href="' + arguments[4] + '"'
                             + (arguments[7] ? ' title="' + arguments[7] + '"' : '')
-                            +'>' + arguments[2] + '</a>';
+                            +'>' + (arguments[2] ? arguments[2] : arguments[4]) + '</a>';
                     }
                 );
 
