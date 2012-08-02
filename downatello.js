@@ -78,7 +78,7 @@
          */
         escapeSpecialChars: function(string) {
             return string.replace(/(\\|`|\*|_|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!amp;)/g, '&amp;');
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!(amp|lt|gt);)/g, '&amp;');
         },
 
         markdownify: function(html) {
@@ -332,11 +332,11 @@
         /**
          * Convert HTML to MARKDOWN
          * @param {Element} html
+         * @return {String}
          */
         toMarkdown: function(html) {
             MarkdownEngine.source = html;
             return MarkdownEngine.markdownify(html).replace(/\s+$/,'');
-
         },
 
         /**
