@@ -4,6 +4,13 @@
 
 (function(window, undefined){
 
+    var utils = {
+        sanitize: function(string){
+            return string.replace(/\\\*/g, '&#42;').replace(/\\_/, '&#95;');
+        }
+    };
+
+
     // MARKDOWN ENGINE
     var MarkdownEngine = {
         element: Node.ELEMENT_NODE,
@@ -77,8 +84,9 @@
          *
          */
         escapeSpecialChars: function(string) {
-            return string.replace(/(\\|`|\*|_|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!(amp|lt|gt);)/g, '&amp;');
+            return string.replace(/(\\|`|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
+                .replace(/\*/, '&#42;').replace(/_/, '&#95;')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!(amp|lt|gt|#(42|95));)/g, '&amp;');
         },
 
         markdownify: function(html) {
@@ -244,7 +252,7 @@
 
             for(var i in blocks)
             {
-                block = blocks[i];
+                block = utils.sanitize(blocks[i]);
 
                 // replace inline elements
                 block = block.replace(/(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g, '<strong>$2</strong>');
