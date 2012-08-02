@@ -10,6 +10,10 @@
 
             <img src="http://i.imgur.com/p8jsR.png" alt="downatello!" title="Hello !"/>
 
+
+
+            <img src="http://i.imgur.com/p8jsR.png" alt="downatello!"/>
+
             <h1>what's <em>downatello</em> ?</h1>
 
             <p>
@@ -41,6 +45,14 @@
                 <li>teenage</li>
                 <li>mutant</li>
                 <li>ninja</li>
+                <li>
+                    <ol>
+                        <li>Leonardo</li>
+                        <li>Michelangelo</li>
+                        <li><b>Donatello</b></li>
+                        <li>Raphael</li>
+                    </ol>
+                </li>
                 <li>turtles</li>
             </ul>
 
@@ -52,18 +64,29 @@
             </ol>
 
             <h2>Bad people</h2>
-            <ol></ol>
+            <ol>
+                <li>Shredder</li>
+                <li>Krang</li>
+                <li>Rocksteady &amp; Bebop</li>
+            </ol>
 
         </div>
 
         <textarea id="toMarkdown" cols="150" rows="20"></textarea>
 
+        <div id="toHtml"></div>
+
+
         <script type="text/javascript" src="../downatello.js"></script>
         <script type="text/javascript">
 
             // HTML to MARKDOWN
-            var html = document.getElementById('html');
-            document.getElementById('toMarkdown').value = downatello.toMarkdown(html);
+            var source = document.getElementById('html');
+            var md = downatello.toMarkdown(source);
+            var html = downatello.toHtml(md);
+
+            document.getElementById('toMarkdown').value = md;
+            document.getElementById('toHtml').innerHTML = html;
 
         </script>
 

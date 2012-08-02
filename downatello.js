@@ -11,8 +11,8 @@
     };
 
 
-    // MARKDOWN ENGINE
-    var MarkdownEngine = {
+    // HTML ENGINE
+    var HtmlEngine = {
         element: Node.ELEMENT_NODE,
         text: Node.TEXT_NODE,
 
@@ -23,7 +23,7 @@
         },
 
         isBlock: function(elem) {
-            if(elem == null || elem.nodeType == MarkdownEngine.text)
+            if(elem == null || elem.nodeType == this.text)
             {
                 return false;
             }
@@ -69,19 +69,18 @@
         /**
          * Escape Markdown special chars :
          *
-             \   backslash
-             `   backtick
-             *   asterisk
-             _   underscore
-             {}  curly braces
-             []  square brackets
-             ()  parentheses
-             #   hash mark
-             +   plus sign
-             -   minus sign (hyphen)
-             .   dot
-             !   exclamation mark
-         *
+         *   \   backslash
+         *   `   backtick
+         *   *   asterisk
+         *   _   underscore
+         *   {}  curly braces
+         *   []  square brackets
+         *   ()  parentheses
+         *   #   hash mark
+         *   +   plus sign
+         *   -   minus sign (hyphen)
+         *   .   dot
+         *   !   exclamation mark
          */
         escapeSpecialChars: function(string) {
             return string.replace(/(\\|`|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
@@ -105,7 +104,7 @@
                     empty = false;
                     elem = html.childNodes[i];
 
-                    if(elem.nodeType == MarkdownEngine.text)
+                    if(elem.nodeType == this.text)
                     {
                         if(/\S+/g.test(elem.textContent))
                         {
@@ -117,7 +116,8 @@
                             var next = elem.nextSibling;
 
                             // if this 'space only' text node is not the first or last element in its parent
-                            if(previous && next && MarkdownEngine.isInline(previous) && MarkdownEngine.isInline(next))
+                            if(previous && next && this.isInline(previous) && this.isInline(next)
+                                && previous.parentNode != this.source && previous.parentNode != this.source)
                             {
                                 markdown += ' ';
                             }
@@ -127,8 +127,7 @@
                             }
                         }
                     }
-
-                    else if(elem.nodeType == MarkdownEngine.element)
+                    else if(elem.nodeType == this.element)
                     {
                         switch (elem.tagName.toLowerCase())
                         {
@@ -161,22 +160,22 @@
                                 break;
 
                             case 'h1':
-                                markdown += '#' + this.markdownify(elem);
+                                markdown += '# ' + this.markdownify(elem);
                                 break;
                             case 'h2':
-                                markdown += '##' + this.markdownify(elem);
+                                markdown += '## ' + this.markdownify(elem);
                                 break;
                             case 'h3':
-                                markdown += '###' + this.markdownify(elem);
+                                markdown += '### ' + this.markdownify(elem);
                                 break;
                             case 'h4':
-                                markdown += '####' + this.markdownify(elem);
+                                markdown += '#### ' + this.markdownify(elem);
                                 break;
                             case 'h5':
-                                markdown += '#####' + this.markdownify(elem);
+                                markdown += '##### ' + this.markdownify(elem);
                                 break;
                             case 'h6':
-                                markdown += '######' + this.markdownify(elem);
+                                markdown += '###### ' + this.markdownify(elem);
                                 break;
 
                             // inlines
@@ -233,7 +232,7 @@
                     }
 
                     parent = elem.parentNode || elem.parentElement;
-                    if(parent == MarkdownEngine.source && !empty)
+                    if(parent == this.source && !empty)
                     {
                         markdown += '\n\n';
                     }
@@ -244,7 +243,8 @@
         }
     };
 
-    var HtmlEngine = {
+    // MARKDOWN ENGINE
+    var MarkdownEngine = {
 
         htmlize: function(string){
             var blocks = string.split('\n\n');
@@ -326,7 +326,7 @@
             {
                 if(string.indexOf(sharpes) === 0)
                 {
-                    return '<h' + (i+1) + '>' + string.substring(i+1) + '</h' + (i+1) + '>';
+                    return '<h' + (i+1) + '>' + string.replace(/^#{1,6}( |\t)*/g, '') + '</h' + (i+1) + '>';
                 }
 
                 sharpes = sharpes.substring(0, i);
@@ -343,8 +343,10 @@
          * @return {String}
          */
         toMarkdown: function(html) {
-            MarkdownEngine.source = html;
-            return MarkdownEngine.markdownify(html).replace(/\s+$/,'');
+            HtmlEngine.source = html;
+            console.log(HtmlEngine);
+
+            return HtmlEngine.markdownify(html).replace(/\s+$/,'');
         },
 
         /**
@@ -353,7 +355,7 @@
          * @return {String}
          */
         toHtml: function(markdown) {
-            return HtmlEngine.htmlize(markdown);
+            return MarkdownEngine.htmlize(markdown);
         }
     };
 
