@@ -78,7 +78,7 @@
          */
         escapeSpecialChars: function(string) {
             return string.replace(/(\\|`|\*|_|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&?!amp;/g, '&amp;');
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!amp;)/g, '&amp;');
         },
 
         markdownify: function(html) {
@@ -142,7 +142,7 @@
                                 var len = elem.children.length;
                                 for(var j = 1; j<=len; j++)
                                 {
-                                    markdown += (number ?  j + '. ' : '* ') + this.markdownify(elem.children[j-1])
+                                    markdown += (number ?  j + '.' : '*') + ' ' + this.markdownify(elem.children[j-1])
                                         + ((j == len) ? '' : '\n');
                                 }
                                 break;
@@ -196,6 +196,9 @@
                                 markdown += this.markdownify(elem);
                                 break;
 
+                            //case 'code':
+                                //markdown += '`'  + '`';
+
                             case 'span':
                                 var text = this.markdownify(elem);
 
@@ -246,8 +249,9 @@
                 // replace inline elements
                 block = block.replace(/(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g, '<strong>$2</strong>');
                 block = block.replace(/(\*|_)(?=\S)([^\r]*?\S)\1/g, '<em>$2</em>');
+                //block = block.replace(/(`)(?=\S)([^\r]*?\S)\1/g, '<code>$2</code>');
 
-                //image
+                // images
                 block = block.replace(/(!\[(.*?)\]\s?\([ \t]*()<?(\S+?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,
                     function(){
                         return '<img src="' + arguments[4] + '" alt="'
@@ -256,6 +260,7 @@
                     }
                 );
 
+                // links
                 block = block.replace(/(\[(.*?)\]\s?\([ \t]*()<?(\S+?)>?[ \t]*((['"])(.*?)\6[ \t]*)?\))/g,
                     function(){
                         return '<a href="' + arguments[4] + '"'
@@ -274,9 +279,9 @@
                     block = this.heading(block);
                 }
 
-                if(/^((\d\.|[\*|\+|-]) (.*)(\n|$))+/gm.test(block))
+                if(/^(( {1,3})?(\d\.|[\*|\+|-])( *|[\t])?(.*)(\n|$))+/gm.test(block))
                 {
-                    block = this.list(block, (block.search(/\d\./) == 0 ? 'ol' : 'ul'));
+                    block = this.list(block, (block.search(/( {1,3})?\d\./) == 0 ? 'ol' : 'ul'));
                 }
 
                 if(/^(<(strong|em|img|a)|[^<])/g.test(block))
@@ -300,7 +305,7 @@
 
             for(var i in items)
             {
-                list += '<li>' + items[i].substring(2) + '</li>';
+                list += '<li>' + items[i].replace(/^(( {1,3})?(\d\.|[\*|\+|-])( *|[\t])?)+/g, '') + '</li>';
             }
 
             return '<' + tag + '>' + list + '</' + tag +'>';
