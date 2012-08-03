@@ -85,7 +85,7 @@
          */
         escapeSpecialChars: function(string) {
             return string.replace(/(\\|`|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-                .replace(/\*/, '&#42;').replace(/_/, '&#95;')
+                .replace(/\*/g, '&#42;').replace(/_/g, '&#95;')
                 .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!(amp|lt|gt|#(42|95));)/g, '&amp;');
         },
 
