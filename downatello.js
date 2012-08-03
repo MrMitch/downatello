@@ -188,35 +188,42 @@
 
                             case 'b':
                             case 'strong':
-                                markdown += '**' + this.markdownify(elem) + '**';
+                                markdown += this.wrap(this.markdownify(elem), '**');
                                 break;
 
                             case 'em':
                             case 'i':
-                                markdown += '_' + this.markdownify(elem) + '_';
+                                markdown += this.wrap(this.markdownify(elem), '_');
                                 break;
 
                             case 'u':
-                                markdown += this.markdownify(elem);
+                                markdown += this.wrap(this.markdownify(elem), '-');
                                 break;
 
                             //case 'code':
                                 //markdown += '`'  + '`';
 
                             case 'span':
-                                var text = this.markdownify(elem);
-
-                                if(elem.style && (elem.style.fontWeight == 'bold' || elem.style.fontWeight == 'bolder'))
+                                var symbols = '';
+                                if(elem.style)
                                 {
-                                    text = '**' + text + '**';
+                                    if(elem.style.fontWeight == 'bold' || elem.style.fontWeight == 'bolder')
+                                    {
+                                        symbols += '**';
+                                    }
+
+                                    if(elem.style.fontStyle == 'italic')
+                                    {
+                                        symbols += '_';
+                                    }
+
+                                    if(elem.style.textDecoration == 'underline')
+                                    {
+                                        symbols += '-';
+                                    }
                                 }
 
-                                if (elem.style && elem.style.fontStyle == 'italic')
-                                {
-                                    text = '_' + text + '_';
-                                }
-
-                                markdown += text;
+                                markdown += this.wrap(this.markdownify(elem), symbols);
                                 break;
                             default:
                                 error = true;
@@ -237,6 +244,10 @@
             }
 
             return markdown;
+        },
+
+        wrap: function(string, symbols) {
+            return (symbols.length == 0) ? string : symbols + string + (symbols.split('').reverse().join(''));
         },
 
         list: function(elem, ordered) {
