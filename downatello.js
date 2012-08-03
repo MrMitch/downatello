@@ -260,6 +260,8 @@
     // MARKDOWN ENGINE
     var MarkdownEngine = {
 
+        paragraphsAsDivs: false,
+
         htmlize: function(string){
             var blocks = string.split('\n\n');
             var block;
@@ -308,7 +310,14 @@
 
                 if(/^(<(strong|em|img|a)|[^<])/g.test(block))
                 {
-                    block = '<p>' + block + '</p>'
+                    if(this.paragraphsAsDivs)
+                    {
+                        block = '<div>' + block + '</div>'
+                    }
+                    else
+                    {
+                        block = '<p>' + block + '</p>'
+                    }
                 }
 
                 blocks[i] = this.unescapeSpecialChars(block);
@@ -366,9 +375,11 @@
         /**
          * Convert MARKDOWN to HTML
          * @param {String} markdown
+         * @param {Boolean} paragraphsAsDivs
          * @return {String}
          */
-        toHtml: function(markdown) {
+        toHtml: function(markdown, paragraphsAsDivs) {
+            MarkdownEngine.paragraphsAsDivs = !!paragraphsAsDivs;
             return MarkdownEngine.htmlize(markdown);
         }
     };
