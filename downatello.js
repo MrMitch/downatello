@@ -15,10 +15,11 @@
     var HtmlEngine = {
         element: Node.ELEMENT_NODE,
         text: Node.TEXT_NODE,
+        listDepth: -1,
 
         tags: {
             blocks: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'ol', 'ul', 'li', 'header', 'nav',
-                'aside', 'article', 'footer', 'br', 'hr'],
+                'aside', 'article', 'footer', 'br', 'hr', 'pre'],
             inlines: ['a', 'em', 'i', 'strong', 'b', 'u', 'code', 'img', 'span']
         },
 
@@ -145,13 +146,9 @@
 
                             case 'ol':
                             case 'ul':
-                                var number = elem.tagName.toLowerCase() == 'ol';
-                                var len = elem.children.length;
-                                for(var j = 1; j<=len; j++)
-                                {
-                                    markdown += (number ?  j + '.' : '*') + ' ' + this.markdownify(elem.children[j-1])
-                                        + ((j == len) ? '' : '\n');
-                                }
+                                this.listDepth++;
+                                markdown += this.list(elem, elem.tagName.toLowerCase() == 'ol');
+                                this.listDepth--;
                                 break;
                             case 'br':
                                 break;
@@ -237,6 +234,23 @@
                         markdown += '\n\n';
                     }
                 }
+            }
+
+            return markdown;
+        },
+
+        list: function(elem, ordered) {
+            var markdown = '', len = elem.children.length;
+
+            for(var i=1; i<=len; i++)
+            {
+                for(var j=0; j<4*this.listDepth; j++)
+                {
+                    markdown += ' ';
+                }
+
+                markdown += (ordered ?  i + '.' : '*') + ' ' + this.markdownify(elem.children[i-1])
+                    + ((i == len) ? '' : '\n');
             }
 
             return markdown;
@@ -344,7 +358,7 @@
          */
         toMarkdown: function(html) {
             HtmlEngine.source = html;
-            console.log(HtmlEngine);
+            HtmlEngine.listDepth = -1;
 
             return HtmlEngine.markdownify(html).replace(/\s+$/,'');
         },
