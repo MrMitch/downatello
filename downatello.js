@@ -6,7 +6,19 @@
 
     var utils = {
         sanitize: function(string){
-            return string.replace(/\\\*/g, '&#42;').replace(/\\_/, '&#95;');
+            return string.replace(/\\\*/g, '&#42;').replace(/\\_/, '&#95;').replace(/\\-/, '&#45;');
+        },
+
+        unindent: function(string) {
+            return string.replace(/^\s{2,}/, '').replace(/^\n/, '').replace(/\s+$/, ' ');
+        },
+
+        escapeQuotes: function(string) {
+            return string.replace(/"/, '\\"');
+        },
+
+        concatSpaces: function(string) {
+            return string.replace(/\s{2,}/, ' ');
         }
     };
 
@@ -55,18 +67,6 @@
             return false;
         },
 
-        unindent: function(string) {
-            return string.replace(/^\s{2,}/, '').replace(/^\n/, '').replace(/\s+$/, ' ');
-        },
-
-        escapeQuotes: function(string) {
-            return string.replace(/"/, '\\"');
-        },
-
-        concatSpaces: function(string) {
-            return string.replace(/\s{2,}/, ' ');
-        },
-
         /**
          * Escape Markdown special chars :
          *
@@ -90,11 +90,7 @@
         },
 
         markdownify: function(html) {
-            var markdown = '';
-            var error;
-            var empty;
-            var elem;
-            var parent;
+            var markdown = '', error, empty, elem, parent;
 
 
             if(html.childNodes && html.childNodes.length > 0)
@@ -109,7 +105,7 @@
                     {
                         if(/\S+/g.test(elem.textContent))
                         {
-                            markdown += this.concatSpaces(this.unindent(this.escapeSpecialChars(elem.textContent)));
+                            markdown += utils.concatSpaces(utils.unindent(this.escapeSpecialChars(elem.textContent)));
                         }
                         else
                         {
@@ -179,11 +175,12 @@
                             case 'img':
                                 markdown += '![' + (elem.alt || ' ') + ']('
                                     + this.escapeSpecialChars(elem.src)
-                                    + (elem.title ? ' "' + this.escapeQuotes(elem.title) + '"' : '') +  ')';
+                                    + (elem.title ? ' "' + utils.escapeQuotes(elem.title) + '"' : '') +  ')';
                                 break;
                             case 'a':
                                 markdown += '[' + this.markdownify(elem) + ']('
-                                    + this.escapeSpecialChars(elem.href) + ')';
+                                    + this.escapeSpecialChars(elem.href)
+                                    + (elem.title ? ' "' + utils.escapeQuotes(elem.title) + '"' : '') +  ')';
                                 break;
 
                             case 'b':
