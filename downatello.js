@@ -84,9 +84,9 @@
          *   !   exclamation mark
          */
         escapeSpecialChars: function(string) {
-            return string.replace(/(\\|`|\{|\}|\[|\]|\(|\)|#|\+|-|!)/g, '\\$1')
-                .replace(/\*/g, '&#42;').replace(/_/g, '&#95;')
-                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!(amp|lt|gt|#(42|95));)/g, '&amp;');
+            return string.replace(/(\\|`|\{|\}|\[|\]|\(|\)|#|\+|!)/g, '\\$1')
+                .replace(/\*/g, '&#42;').replace(/_/g, '&#95;').replace(/\-/g, '&#45;')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&(?!(amp|lt|gt|#(42|45|95));)/g, '&amp;');
         },
 
         markdownify: function(html) {
@@ -284,6 +284,7 @@
                 // replace inline elements
                 block = block.replace(/(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g, '<strong>$2</strong>');
                 block = block.replace(/(\*|_)(?=\S)([^\r]*?\S)\1/g, '<em>$2</em>');
+                block = block.replace(/(\-)(?=\S)([^\r]*?\S)\1/g, '<u>$2</u>');
                 //block = block.replace(/(`)(?=\S)([^\r]*?\S)\1/g, '<code>$2</code>');
 
                 // images
