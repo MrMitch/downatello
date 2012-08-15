@@ -147,6 +147,7 @@
                                 this.listDepth--;
                                 break;
                             case 'br':
+                                markdown += '    \n';
                                 break;
                             case 'hr':
                                 markdown += '- - -';
